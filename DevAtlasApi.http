@@ -1,0 +1,6 @@
+@DevAtlasApi_HostAddress = http://localhost:5078
+
+GET {{DevAtlasApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
