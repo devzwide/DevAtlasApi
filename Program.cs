@@ -4,6 +4,9 @@ using DevAtlasApi.Application.Interfaces;
 using DevAtlasApi.Application.Services;
 using DevAtlasApi.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using DevAtlasApi.Domain.Entities;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +20,18 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ApplicationDbContext> (options => 
+builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentityCore<User>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddApiEndpoints()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddIdentityCookies(); 
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddScoped<ISelfAssessmentService, SelfAssessmentService>();
 
@@ -33,5 +46,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapIdentityApi<User>();
 
 app.Run();
